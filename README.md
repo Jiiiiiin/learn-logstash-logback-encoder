@@ -60,4 +60,5 @@
 ## 参考
     
 > [slf4j中的MDC](https://www.cnblogs.com/sealedbook/p/6227452.html)
+
 > [logstash中logback的json编码器插件](https://www.jianshu.com/p/a26da0c55255)
