@@ -52,6 +52,7 @@
 }
 ```
 
+### 注意
 + 应用启动时候，除了默认字段，还包含了`customFields`
 + 接收到请求之后，会添加`includeMdcKeyName`
     
