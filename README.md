@@ -7,6 +7,8 @@
 + 使用`<includeCallerData>`标签包含`caller_*`字段
 + 使用`customFields`标签输出全局自定义字段
 + 使用`includeMdcKeyName`标签输出
+    + 添加MDC自定义字段参考[CustomFilter.java](https://github.com/Jiiiiiin/learn-logstash-logback-encoder/blob/master/src/main/java/com/example/demo/CustomFilter.java) [CustomHandlerInterceptor.java](https://github.com/Jiiiiiin/learn-logstash-logback-encoder/blob/master/src/main/java/com/example/demo/CustomHandlerInterceptor.java)
+
     
 ```json
 // 应用启动时候
@@ -60,5 +62,5 @@
 ## 参考
     
 > [slf4j中的MDC](https://www.cnblogs.com/sealedbook/p/6227452.html)
-
 > [logstash中logback的json编码器插件](https://www.jianshu.com/p/a26da0c55255)
+> [Structured Logging with Structured Arguments](https://www.innoq.com/en/blog/structured-logging/#structuredlogstatements)
