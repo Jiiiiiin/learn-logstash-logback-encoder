@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,6 +33,10 @@ public class DemoApplication {
       throw new RuntimeException("出错啦");
     }
     log.info("call index");
+    // https://www.jianshu.com/p/a26da0c55255
+    // https://www.innoq.com/en/blog/structured-logging/#structuredlogstatements
+    // 2019-07-15 16:38:22.462  INFO 31617 --- [nio-8080-exec-6] com.example.demo.DemoApplication         : test structured args msg: xiaoma
+    log.info("test structured args msg: {}", value("username", "xiaoma"));
     return "hello springboot";
   }
 

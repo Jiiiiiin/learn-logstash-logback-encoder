@@ -282,6 +282,7 @@ resp_status 响应状态码，便于统计接口*物理*上的调用状态，如
 ### 注意
 + 应用启动时候，除了默认字段，还包含了`customFields`
 + 接收到请求之后，会添加`includeMdcKeyName`
++ 一般不要使用`Structured Log Statements`，因为es哪里应该是一个固定建模
     
     
 ## 参考

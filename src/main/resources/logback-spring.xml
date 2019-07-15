@@ -2,8 +2,6 @@
 <configuration debug="false" scan="true">
   <property resource="application.properties"/>
 
-  <!--  <springProperty scope="context" name="spring.application.name" source="spring.application.name"-->
-  <!--    defaultValue="user-server"/>-->
   <property name="log.path" value="${user.dir}/logs/${spring.application.name}"/>
 
   <!-- 彩色日志格式 -->
@@ -106,7 +104,8 @@
       <!--http://www.lstop.pub/2017/03/14/logback发送日志到filebeat/: customFields 自定义的字段，推荐加上HOSTNAME，计算机主机名，便于在负载均衡的情况下分辨具体的服务器-->
       <!--            Note that logback versions prior to 1.1.10 included a HOSTNAME property by default in the context. As of logback 1.1.10, the HOSTNAME property is lazily calculated (see LOGBACK-1221), and will no longer be included by default.-->
       <!--但是目前测试下来 HOSTNAME是包含的-->
-      <customFields>{"app_name":"${spring.application.name}", "host_name":"${HOSTNAME}"}</customFields>
+      <customFields>{"app_name":"${spring.application.name}", "host_name":"${HOSTNAME}"}
+      </customFields>
     </encoder>
   </appender>
 
