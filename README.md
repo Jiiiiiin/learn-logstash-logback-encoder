@@ -1,16 +1,16 @@
 # 学习使用[logstash-logback-encoder](https://github.com/logstash/logstash-logback-encoder)
 
-## 目的
+## 实践
 
-+ 将日志输出到本地文件中，以json格式保存
+### 将日志输出到本地文件中，以json格式保存
 
 这里使用`RollingFileAppender`+`AsyncAppender`来实现
 
-+ 将自定义字段输出到json对象中
+### 将自定义字段输出到json对象中
 
 使用`LogstashEncoder`完成
 
-+ 使用`<includeCallerData>`标签包含`caller_*`字段
+### 使用`<includeCallerData>`标签包含`caller_*`字段
 
 ```json
 {
@@ -23,7 +23,7 @@
 
 这几个输出，就方便定位当前日志是在哪一个类的那个方法的哪一行打印出来的。
 
-+ 使用`customFields`标签输出全局自定义字段
+### 使用`customFields`标签输出全局自定义字段
 
 ```xml
 <customFields>{"app_name":"${spring.application.name}", "host_name":"${HOSTNAME}"}</customFields>
@@ -36,7 +36,7 @@
 **这里这两个字段方便后续做服务实例的统计；**
 
 
-+ 使用`includeMdcKeyName`标签输出
+### 使用`includeMdcKeyName`标签输出
     + 添加MDC自定义字段参考[CustomFilter.java](https://github.com/Jiiiiiin/learn-logstash-logback-encoder/blob/master/src/main/java/com/example/demo/CustomFilter.java) [CustomHandlerInterceptor.java](https://github.com/Jiiiiiin/learn-logstash-logback-encoder/blob/master/src/main/java/com/example/demo/CustomHandlerInterceptor.java)
 
 
@@ -129,14 +129,23 @@ public interface MDCUtils {
 ```
 
 req_is_debug 用来配合查看是否是一个分流流量，如网关通过该标签将流量进行分流到一个测试实例
+
 req_device_id 记录用户的设备id，通过设个设备id来锁定到用户的设备
+
 req_user_agent 通过这个信息后期可以统计出访问某些交易用户所使用的设备的习惯，也可以对一些非法请求做过滤统计
+
 req_request_uri 记录请求的接口
+
 req_request_method 配合锁定请求的接口
+
 req_content_length 记录请求的长度，表单长度，单位字节
+
 req_remote_addr 用于后期用ip做地理位置定位查看用户分布情况
+
 req_remote_user 便于日志查看用户唯一标识（如用户名），也可以看出用户是否认证
+
 req_query_string url参数字符串，表单数据建议序列化到数据库之后需要再进行关联查询，而不是直接放在es中
+
 resp_status 响应状态码，便于统计接口*物理*上的调用状态，如果接口不是符合真实的RESTful规范，还需要手动解析业务状态
 
 ```json
