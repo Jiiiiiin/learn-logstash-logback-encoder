@@ -1,13 +1,8 @@
 package com.example.demo;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.slf4j.MDC;
-import org.springframework.core.annotation.Order;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -21,38 +16,32 @@ import java.io.IOException;
  * <p>
  * 最后关键就是这个Arrays.sort(dirContents)了。所以简单来说，可以通过class类名来达到排序效果。但这种方案要限制类名，还是使用FilterRegistrationBean之类的来设置吧。
  * <p>
- * FilterRegistrationBean是springboot提供的，此类提供setOrder方法，可以为filter设置排序值，让spring在注册web filter之前排序后再依次注册。
+ * FilterRegistrationBean是springboot提供的，此类提供setOrder方法，可以为filter设置排序值，让spring在注册web
+ * filter之前排序后再依次注册。
  */
 //@Order(0) 无效
 //@WebFilter(filterName = "customFilter", urlPatterns = {"/*"})
 @Slf4j
 public class CustomFilter implements Filter {
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        log.info("filter 初始化");
-    }
 
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        val IS_DEBUG = String.valueOf(request.getHeader("IS_DEBUG"));
-        MDC.put("req_is_debug", StringUtils.isEmpty(IS_DEBUG) ? "false" : "true");
-        MDC.put("req_device_id", String.valueOf(request.getHeader("DEVICE_ID")));
-        MDC.put("req_user_agent", String.valueOf(request.getHeader("User-Agent")));
-        // "req_request_uri":"/favicon.ico","req_is_debug":"null","req_request_url":"http://localhost:8080/favicon.ico"
-//        MDC.put("req_request_url", String.valueOf(request.getRequestURL()));
-        MDC.put("req_request_uri", String.valueOf(request.getRequestURI()));
-        MDC.put("req_request_method", String.valueOf(request.getMethod()));
-        MDC.put("req_content_length", String.valueOf(request.getContentLength()));
-//        MDC.put("req_query_string", String.valueOf(request.getQueryString()));
+  @Override
+  public void init(FilterConfig filterConfig) throws ServletException {
+    log.info("filter 初始化");
+  }
 
-        // 必须在设置MDC之后打印日志，否则%X{req_is_debug}将不会生效
-        log.info("doFilter 请求处理");
-        filterChain.doFilter(servletRequest, servletResponse);
-    }
+  @Override
+  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+      FilterChain filterChain) throws IOException, ServletException {
+    HttpServletRequest request = (HttpServletRequest) servletRequest;
+    // 设置字段
+    MDCUtils.putRequestFields(request);
+    // 必须在设置MDC之后打印日志，否则%X{req_is_debug}将不会生效
+    log.info("doFilter 请求处理");
+    filterChain.doFilter(servletRequest, servletResponse);
+  }
 
-    @Override
-    public void destroy() {
-        log.info("filter 销毁");
-    }
+  @Override
+  public void destroy() {
+    log.info("filter 销毁");
+  }
 }
