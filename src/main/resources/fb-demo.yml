@@ -1,0 +1,81 @@
+#  ./filebeat -e -c /Applications/ELK/materials/codes/filebeat/demo.yml -d "publish"
+# -d 作用是会输出日志，即如果output配置的非es的时候方便调试，publish是log的tag
+# 官方文档：https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-input-log.html
+#=========================== Filebeat inputs =============================
+filebeat.inputs:                                        # 有相同配置参数的可以归类为一个 prospector
+  #- type: stdin | log 读取日志文件 | redis | udp|TCP|Syslog | docker https://www.elastic.co/guide/en/beats/filebeat/current/configuration-filebeat-options.html
+  - type: stdin #从标准输入读取数据
+    enabled: true
+    encoding: utf-8
+    # 5秒钟扫描一次以检查文件更新
+    scan_frequency: 5s
+    # 如果文件1小时都没有更新，则关闭文件句柄
+    close_inactive: 1h
+    # 忽略24小时前的文件
+    #ignore_older: 24h
+    log_source: learn-logstash-logback-encoder
+    # encoding: UTF-8
+    # 添加自定义标签
+    tags: ["json"]
+    # 添加自定义字段
+    fields:
+      proj_id: js_elk_test
+      service_id: logstash-logback-encoder
+    # 将上面`fields`添加的字段`repo`设置为根字段（即filebeat形成的输出结果中）
+    fields_under_root: true
+    # 将输入字段按照json格式解析，如果输入非json格式则报错
+    json:
+      # 将json字段添加到输出的根，同`fields_under_root`，默认这个值是FALSE
+      keys_under_root: true
+      # 解决logback映射出来的@timesamp被filebeat默认创建event记录时间字段冲掉的问题
+      # https://chenja.iteye.com/blog/2383771
+      overwrite_keys: true
+      # 解析字段报错处理，如：
+      #   "error": {
+      #   "message": "Error decoding JSON: invalid character 'h' looking for beginning of value",
+      #   "type": "json"
+      # },
+      add_error_key: true
+    # https://www.elastic.co/guide/en/beats/filebeat/current/drop-fields.html
+  #    processors:
+  #      - drop_fields:
+  #          when:
+  #            condition
+  #          fields: ["DBG"]
+  #    processors:
+  #      - add_docker_metadata: ~
+  #      - decode_json_fields:
+  #          fields: ["message"]
+  #      - drop_event:
+  #          when:
+  #            not:
+  #              has_fields: ['docker.container.labels.filebeat_enable']
+  #  harvester_buffer_size 当抓取一个文件时每个harvester使用的buffer的字节数。默认是16384。
+  #
+  #  max_bytes 单个日志消息允许的最大字节数。超过max_bytes的字节将被丢弃且不会被发送。对于多行日志消息来说这个设置是很有用的，因为它们往往很大。默认是10MB（10485760）
+
+# Write Filebeat own logs only to file to avoid catching them with itself in docker log files
+logging.to_files: true
+logging.to_syslog: false
+
+#================================ Outputs =====================================
+
+# Configure what output to use when sending the data collected by the beat.
+
+#----------------------------- console output --------------------------------
+# 调试建议使用
+# output.console:
+#   pretty: true
+#   enabled: true
+
+#----------------------------- Logstash output --------------------------------
+output.logstash:
+# The Logstash hosts
+ hosts: ["localhost:5044"]
+#  4.7.  负载均衡
+#  hosts: ["localhost:5044", "localhost:5045"]
+#  loadbalance: true
+
+# X-pack optional module
+# xpack.monitoring.enabled: true
+# xpack.monitoring.elasticsearch.hosts: ["host.docker.internal:9200"]

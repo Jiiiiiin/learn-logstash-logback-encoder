@@ -18,7 +18,7 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 
         // 必须放在这里才有值
         MDCUtils.putSpringMVCInterceptorFields(request);
-        log.info("req {}", MDC.getCopyOfContextMap());
+//        log.info("req {}", MDC.getCopyOfContextMap());
         //返回 false 则请求中断
         return true;
     }

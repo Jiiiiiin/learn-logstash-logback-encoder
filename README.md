@@ -283,12 +283,171 @@ resp_status 响应状态码，便于统计接口*物理*上的调用状态，如
 + 应用启动时候，除了默认字段，还包含了`customFields`
 + 接收到请求之后，会添加`includeMdcKeyName`
 + 一般不要使用`Structured Log Statements`，因为es哪里应该是一个固定建模
++ 上面相当于我们只是用了LoggerEvents提供者，并且手动定义了AccessEvents提供者中默认提供的一些字段
     
-    
-## 参考
-    
-> [slf4j中的MDC](https://www.cnblogs.com/sealedbook/p/6227452.html)
-> 
-> [logstash中logback的json编码器插件](https://www.jianshu.com/p/a26da0c55255)
-> 
-> [Structured Logging with Structured Arguments](https://www.innoq.com/en/blog/structured-logging/#structuredlogstatements)
+### 其他
++ [定制版本](https://www.jianshu.com/p/a26da0c55255)
++ [定制时区](https://www.jianshu.com/p/a26da0c55255)
++ [定制日志的名称长度](https://www.jianshu.com/p/a26da0c55255)
++ [定制追踪栈](https://www.jianshu.com/p/a26da0c55255)
++ [复合编码器/样式布局器](https://www.jianshu.com/p/a26da0c55255)
+
+
+
+
+# 结合filebeat->logstash->es->kibana
+
++ [filebeat配置](/src/main/resources/fb-demo.yml)
++ [logstash配置](/src/main/resources/logstash-demo.cnf)
+
++ filebeat格式化之后的输出：
+
+
+```json
+{
+  "@timestamp": "2019-07-15T08:11:09.652Z",
+  "@metadata": {
+    "beat": "filebeat",
+    "type": "_doc",
+    "version": "7.1.1"
+  },
+  "host_name": "jiiiiiins-MacBook-Pro.local",
+  "@version": "1",
+  "agent": {
+    "type": "filebeat",
+    "ephemeral_id": "216677d9-2010-4397-b346-6738629946ea",
+    "hostname": "jiiiiiins-MacBook-Pro.local",
+    "id": "850274bd-b4cb-4c11-aca3-571c8343b42f",
+    "version": "7.1.1"
+  },
+  "host": {
+    "name": "jiiiiiins-MacBook-Pro.local"
+  },
+  "caller_file_name": "StartupInfoLogger.java",
+  "caller_class_name": "org.springframework.boot.StartupInfoLogger",
+  "thread_name": "main",
+  "log": {
+    "file": {
+      "path": ""
+    },
+    "offset": 0
+  },
+  "logger_name": "com.example.demo.DemoApplication",
+  "caller_line_number": 50,
+  "level": "INFO",
+  "tags": [
+    "dev"
+  ],
+  "level_value": 20000,
+  "app_name": "demo",
+  "input": {
+    "type": "stdin"
+  },
+  "document_type": "logstash-logback-encoder",
+  "caller_method_name": "logStarting",
+  "ecs": {
+    "version": "1.0.0"
+  },
+  "message": "Starting DemoApplication on jiiiiiins-MacBook-Pro.local with PID 31300 (/Users/jiiiiiin/Documents/GitHub/learn-logstash-logback-encoder/target/classes started by jiiiiiin in /Users/jiiiiiin/Documents/GitHub/learn-logstash-logback-encoder)",
+  "HOSTNAME": "jiiiiiins-MacBook-Pro.local"
+}
+```
+
++ logstash格式化数据：
+
+```ruby
+{
+                 "agent" => {
+            "hostname" => "jiiiiiins-MacBook-Pro.local",
+                  "id" => "850274bd-b4cb-4c11-aca3-571c8343b42f",
+                "type" => "filebeat",
+        "ephemeral_id" => "bcd2c171-ad40-4d60-b91b-4a6b00ee5fd9",
+             "version" => "7.1.1"
+    },
+          "req_is_debug" => "false",
+                   "log" => {
+          "file" => {
+            "path" => ""
+        },
+        "offset" => 0
+    },
+      "req_query_string" => "query=struct",
+       "req_remote_addr" => "0:0:0:0:0:0:0:1",
+    "req_content_length" => "-1",
+       "req_request_uri" => "/",
+           "resp_status" => "404",
+                   "ecs" => {
+        "version" => "1.0.0"
+    },
+            "service_id" => "logstash-logback-encoder",
+                  "host" => {
+        "name" => "jiiiiiins-MacBook-Pro.local"
+    },
+              "@version" => "1",
+           "logger_name" => "com.example.demo.DemoApplication",
+        "req_user_agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36",
+         "req_device_id" => "anonymity_device_id",
+                 "level" => "INFO",
+             "@metadata" => {
+             "index" => "js_elk_test_logstash-logback-encoder_logs_2019.07.16",
+        "ip_address" => "127.0.0.1",
+           "version" => "7.1.1",
+              "type" => "_doc",
+             "debug" => "true",
+              "beat" => "filebeat"
+    },
+               "message" => "call index",
+               "proj_id" => "js_elk_test",
+       "req_remote_user" => "anonymity_user",
+                  "tags" => [
+        [0] "json",
+        [1] "beats_input_codec_json_applied"
+    ],
+                 "input" => {
+        "type" => "stdin"
+    },
+              "app_name" => "demo",
+            "@timestamp" => 2019-07-16T09:23:28.009Z,
+              "HOSTNAME" => "jiiiiiins-MacBook-Pro.local",
+           "level_value" => 20000,
+           "thread_name" => "http-nio-8080-exec-6",
+    "req_request_method" => "GET",
+             "host_name" => "jiiiiiins-MacBook-Pro.local"
+}
+```
+
+
+
+## 注意
++ logstash-logback-encoder插件默认帮我们转换的`"@timestamp":"2019-07-15T22:11:25.886+08:00"`日志生成时间，会被filebeat替换成自己收集日志的当前时间（0时区）
+
+为了解决这个问题，使用下面两个配置：
+https://chenja.iteye.com/blog/2383771
+
+```yml
+json:
+      # 将json字段添加到输出的根，同`fields_under_root`，默认这个值是FALSE
+      keys_under_root: true
+      # 解决logback映射出来的@timesamp被filebeat默认创建event记录时间字段冲掉的问题
+      # https://chenja.iteye.com/blog/2383771
+      overwrite_keys: true
+```
+
+
+
+
+# 参考
+
+[在 IBM Cloud 上使用 Java 进行编程](https://cloud.ibm.com/docs/java?topic=java-spring-logging)
+
+[ELK快速搭建日志平台](https://www.cnblogs.com/cjsblog/p/9517060.html)
+
+[Logback配置](https://www.cnblogs.com/cjsblog/p/9113131.html)
+
+[slf4j中的MDC](https://www.cnblogs.com/sealedbook/p/6227452.html) 
+
+[logstash中logback的json编码器插件](https://www.jianshu.com/p/a26da0c55255) 
+
+[Structured Logging with Structured Arguments](https://www.innoq.com/en/blog/structured-logging/#structuredlogstatements)
+
+[filebeat解析log类型日志官方配置文档](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-input-log.html)

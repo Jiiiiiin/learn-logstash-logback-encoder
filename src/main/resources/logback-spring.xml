@@ -72,6 +72,40 @@
   <!--</filter>-->
   <!--</appender>-->
 
+  <!--  <appender name="filebeat-tcp" class="net.logstash.logback.appender.LogstashUdpSocketAppender">-->
+  <!--    <host>filebeat-server</host>-->
+  <!--    <port>5111</port>-->
+  <!--&lt;!&ndash;    <includeContext>false</includeContext>&ndash;&gt;-->
+  <!--&lt;!&ndash;    <customFields>{"appname":"your app name","host":"${HOSTNAME}"}</customFields>&ndash;&gt;-->
+  <!--&lt;!&ndash;    <suffix class="ch.qos.logback.classic.PatternLayout">&ndash;&gt;-->
+  <!--&lt;!&ndash;      <pattern>%n</pattern>&ndash;&gt;-->
+  <!--&lt;!&ndash;    </suffix>&ndash;&gt;-->
+  <!--    <encoder class="net.logstash.logback.encoder.LogstashEncoder">-->
+  <!--      &lt;!&ndash;      请求者信息字段 https://www.jianshu.com/p/a26da0c55255&ndash;&gt;-->
+  <!--      &lt;!&ndash;      编码器吗，布局器和追加器默认的不包含请求者信息。请求者信息是昂贵的计算，应该在繁忙的的环境中避免使用。&ndash;&gt;-->
+  <!--      &lt;!&ndash;      如果要打开请求者信息功能，在配置中包含属性<includeCallerData>。&ndash;&gt;-->
+  <!--      <includeCallerData>true</includeCallerData>-->
+  <!--      <includeMdcKeyName>req_is_debug</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>req_device_id</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>req_user_agent</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>req_request_uri</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>req_request_method</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>req_content_length</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>req_remote_addr</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>req_remote_user</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>req_query_string</includeMdcKeyName>-->
+  <!--      <includeMdcKeyName>resp_status</includeMdcKeyName>-->
+
+  <!--      &lt;!&ndash;启动时候会报错因为没有该字段，如自定义的MDC&ndash;&gt;-->
+  <!--      &lt;!&ndash;<excludeMdcKeyName>req_user_agent</excludeMdcKeyName>&ndash;&gt;-->
+  <!--      &lt;!&ndash;自定义字段&ndash;&gt;-->
+  <!--      &lt;!&ndash;http://www.lstop.pub/2017/03/14/logback发送日志到filebeat/: customFields 自定义的字段，推荐加上HOSTNAME，计算机主机名，便于在负载均衡的情况下分辨具体的服务器&ndash;&gt;-->
+  <!--      &lt;!&ndash;            Note that logback versions prior to 1.1.10 included a HOSTNAME property by default in the context. As of logback 1.1.10, the HOSTNAME property is lazily calculated (see LOGBACK-1221), and will no longer be included by default.&ndash;&gt;-->
+  <!--      &lt;!&ndash;但是目前测试下来 HOSTNAME是包含的&ndash;&gt;-->
+  <!--      <customFields>{"app_name":"${spring.application.name}", "host_name":"${HOSTNAME}"}</customFields>-->
+  <!--    </encoder>-->
+  <!--  </appender>-->
+
   <appender name="logstash" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${log.path}/logstash.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -102,9 +136,10 @@
       <!--<excludeMdcKeyName>req_user_agent</excludeMdcKeyName>-->
       <!--自定义字段-->
       <!--http://www.lstop.pub/2017/03/14/logback发送日志到filebeat/: customFields 自定义的字段，推荐加上HOSTNAME，计算机主机名，便于在负载均衡的情况下分辨具体的服务器-->
-      <!--            Note that logback versions prior to 1.1.10 included a HOSTNAME property by default in the context. As of logback 1.1.10, the HOSTNAME property is lazily calculated (see LOGBACK-1221), and will no longer be included by default.-->
-      <!--但是目前测试下来 HOSTNAME是包含的-->
-      <customFields>{"app_name":"${spring.application.name}", "host_name":"${HOSTNAME}"}
+      <!-- 但是目前测试下来 HOSTNAME是包含的：针对插件文档这个描述：Note that logback versions prior to 1.1.10 included a HOSTNAME property by default in the context. As of logback 1.1.10, the HOSTNAME property is lazily calculated (see LOGBACK-1221), and will no longer be included by default.-->
+      <!-- 目前如果不加这个字段 host_name，会默认有一个 "HOSTNAME": "jiiiiiins-MacBook-Pro.local"这个字段   -->
+<!--      <customFields>{"app_name":"${spring.application.name}", "host_name":"${HOSTNAME}"}-->
+      <customFields>{"app_name":"${spring.application.name}"}
       </customFields>
     </encoder>
   </appender>
@@ -156,8 +191,8 @@
 
   <!-- Level: FATAL 0  ERROR 3  WARN 4  INFO 6  DEBUG 7 -->
   <root level="INFO">
-    <appender-ref ref="console"/>
-    <!--        <appender-ref ref="jsonConsoleAppender"/>-->
+        <appender-ref ref="console"/>
+<!--    <appender-ref ref="jsonConsoleAppender"/>-->
     <!--        <appender-ref ref="debug"/>-->
     <!--<appender-ref ref="error"/>-->
     <appender-ref ref="logstash"/>

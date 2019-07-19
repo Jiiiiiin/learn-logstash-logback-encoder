@@ -9,6 +9,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,21 +24,32 @@ import javax.servlet.Filter;
 @Configuration
 public class DemoApplication {
 
+
   public static void main(String[] args) {
     SpringApplication.run(DemoApplication.class, args);
   }
 
+
+  @GetMapping("/hello")
+  public String hello(@RequestParam(required = false) String query) {
+    return "yeah ELK";
+  }
+
   @GetMapping("/")
   public String index(@RequestParam(required = false) String query) {
-    if (query.startsWith("err")) {
-      throw new RuntimeException("出错啦");
+    if (!StringUtils.isEmpty(query)) {
+      if (query.startsWith("err")) {
+        throw new RuntimeException("出错啦");
+      } else if ("struct".equals(query)) {
+        // 一般情况不要使用struct api，因为我们需要保证以`logback-spring.xml`为准来看数据结构
+        log.info("test structured args msg: {}", value("username", "xiaoma"));
+      }
     }
     log.info("call index");
     // https://www.jianshu.com/p/a26da0c55255
     // https://www.innoq.com/en/blog/structured-logging/#structuredlogstatements
     // 2019-07-15 16:38:22.462  INFO 31617 --- [nio-8080-exec-6] com.example.demo.DemoApplication         : test structured args msg: xiaoma
-    log.info("test structured args msg: {}", value("username", "xiaoma"));
-    return "hello springboot";
+    return "hello ELK";
   }
 
   @Bean

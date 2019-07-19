@@ -1,0 +1,49 @@
+input {
+  # 监听对应端口的http请求作为输入
+  # http{ 
+  #   port => 7474
+  #   codec => json_lines
+  # }
+
+  beats {
+      ssl => false
+      port => "5044"
+      codec => "json"
+  }
+}
+
+filter {
+  mutate {
+        # 添加debug字段到 @matedata中，注意@matedata默认不会输出到output
+        # 这里是一种调试技巧，详见output的if
+        add_field => { "[@metadata][debug]" => true }
+
+        add_field => { "[@metadata][index]" => "%{proj_id}_%{service_id}_logs_%{+YYYY.MM.dd}" }
+        # 添加一个普通字段
+        # add_field => {"message_show"=>"show in output"}
+        
+        # 删除字段
+        # remove_field => "headers"
+        remove_field => ["headers"]
+  }
+}
+
+output {
+  # 读取matedata字段中的debug属性
+  if [@metadata][debug] {
+      # 显示matedata数据项
+      stdout{ codec => rubydebug { metadata => true } }
+      # stdout{codec=>rubydebug}
+  }else{
+      stdout{ codec => dots }
+      # elasticsearch{
+      #     index => "%{[@metadata][index]}"
+      #     document_type => "_doc"
+      # }
+      # elasticsearch {
+      #     hosts => [ "localhost:9200" ]
+      #     index => "%{[service_id]}-%{+YYYY.MM.dd}"
+      # }
+  }
+  
+}
